@@ -67,11 +67,8 @@ Nightly builds run automatically:
 # Linux x86_64
 curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lottiecode-linux-x86_64.tar.gz | tar xz
 
-# macOS Apple Silicon
+# macOS Apple Silicon (also runs on Intel via Rosetta 2)
 curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lottiecode-macos-arm64.tar.gz | tar xz
-
-# macOS Intel
-curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lottiecode-macos-x86_64.tar.gz | tar xz
 ```
 
 Tagged releases (`v*.*.*`) trigger a separate workflow that publishes a stable release with platform binaries and auto-generated release notes.

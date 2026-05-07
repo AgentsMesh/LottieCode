@@ -67,11 +67,8 @@ Nightly 每天自动构建：
 # Linux x86_64
 curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lottiecode-linux-x86_64.tar.gz | tar xz
 
-# macOS Apple Silicon
+# macOS Apple Silicon（Intel 用户可通过 Rosetta 2 运行）
 curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lottiecode-macos-arm64.tar.gz | tar xz
-
-# macOS Intel
-curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lottiecode-macos-x86_64.tar.gz | tar xz
 ```
 
 打 tag `v*.*.*` 触发独立 workflow，发布带多平台二进制 + 自动生成 release notes 的正式版本。

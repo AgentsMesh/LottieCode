@@ -26,8 +26,6 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-x86_64
-          - os: macos-13
-            target: macos-x86_64
           - os: macos-latest
             target: macos-arm64
     runs-on: ${{ matrix.os }}
@@ -105,8 +103,7 @@ jobs:
 
           各平台二进制：
           - linux-x86_64
-          - macos-x86_64 (Intel)
-          - macos-arm64 (Apple Silicon)"
+          - macos-arm64 (Apple Silicon, also runs on Intel via Rosetta 2)"
           gh release create "$TAG" dist/*.tar.gz \
             --title "$TAG" \
             --notes "$BUILD_INFO" \

@@ -23,9 +23,6 @@ jobs:
           - os: ubuntu-latest
             target: linux-x86_64
             artifact: lc
-          - os: macos-13
-            target: macos-x86_64
-            artifact: lc
           - os: macos-latest
             target: macos-arm64
             artifact: lc
@@ -104,8 +101,7 @@ jobs:
           自动构建产物，仅供测试使用，可能含未发布的不稳定特性。
           各平台二进制：
           - linux-x86_64
-          - macos-x86_64 (Intel)
-          - macos-arm64 (Apple Silicon)"
+          - macos-arm64 (Apple Silicon, also runs on Intel via Rosetta 2)"
           gh release create nightly dist/*.tar.gz \
             --title "Nightly $(date -u +%Y-%m-%d)" \
             --notes "$BUILD_INFO" \
