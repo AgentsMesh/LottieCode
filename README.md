@@ -1,66 +1,67 @@
 # LottieCode
 
-Lottie as Code —— a compiled DSL for [Lottie](https://lottiefiles.com/) animations.
+Lottie as Code — a compiled DSL for [Lottie](https://lottiefiles.com/) animations.
 
 AI writes `.lc` files, the compiler emits Lottie JSON.
 
 [![CI](https://github.com/AgentsMesh/LottieCode/actions/workflows/ci.yml/badge.svg)](https://github.com/AgentsMesh/LottieCode/actions/workflows/ci.yml)
 [![Nightly](https://github.com/AgentsMesh/LottieCode/actions/workflows/nightly.yml/badge.svg)](https://github.com/AgentsMesh/LottieCode/actions/workflows/nightly.yml)
 
-## 为什么
+[简体中文](./README.zh-CN.md)
 
-直接让 Agent 写 Lottie JSON 不够好——字段缩写（`gr/tr/sh`）、`{a,k}` 包装、Bezier 切线、Group↔Transform 1:1 强约束榨干认知带宽，没余力做"设计"。
+## Why
 
-LottieCode 把"写 Lottie 动画"做成"写 Motion DSL → 编译为 Lottie JSON"，让 Agent 在设计层（命名缓动 / 动效预设 / 设计 token / 时序编排）操作，编译器吃掉机械层。
+Asking an AI agent to write Lottie JSON directly is wasteful. Cryptic field names (`gr/tr/sh`), the `{a,k}` wrapping, Bezier tangents, and the rigid 1:1 Group↔Transform pairing burn through the agent's attention budget — leaving nothing for actual *design*.
 
-## 快速开始
+LottieCode reframes "writing Lottie animations" as "writing a Motion DSL → compiling to Lottie JSON". The agent operates at the design layer (named easings, motion presets, design tokens, timing orchestration); the compiler handles the mechanical layer.
+
+## Quick start
 
 ```bash
 git clone https://github.com/AgentsMesh/LottieCode.git
 cd LottieCode
 
-# 编译 example
+# Compile an example
 bazel run //crates/lottiecode-cli:lottiecode-cli -- \
     build examples/14-gaming-restore/main.lc -o /tmp/gaming.json
 
-# 反编译既有 Lottie
+# Decompile an existing Lottie file
 bazel run //crates/lottiecode-cli:lottiecode-cli -- \
     decompile some.json -o some.lc
 ```
 
-## CLI 子命令
+## CLI subcommands
 
-| 命令 | 用途 |
+| Command | Purpose |
 |---|---|
-| `lc check <file>` | 仅验证 DSL 是否合法 |
-| `lc build <file> [-o out]` | 编译为 Lottie JSON / dotLottie |
-| `lc plan <file>` | 树形打印 IR 结构 |
-| `lc inspect <file> [--json]` | 检视编译产物 |
-| `lc fmt <file> [-w]` | 格式化 DSL |
-| `lc syntax` | 输出完整 DSL 语法参考（供 LLM 上下文） |
-| `lc decompile <file> [-o out]` | Lottie JSON → DSL（实验性） |
+| `lc check <file>` | Validate DSL without emitting output |
+| `lc build <file> [-o out]` | Compile to Lottie JSON / dotLottie |
+| `lc plan <file>` | Print IR as a tree |
+| `lc inspect <file> [--json]` | Inspect compilation output |
+| `lc fmt <file> [-w]` | Format DSL source |
+| `lc syntax` | Print full DSL grammar (for LLM context) |
+| `lc decompile <file> [-o out]` | Lottie JSON → DSL (experimental) |
 
-## 架构
+## Architecture
 
-5 个 crate：
+Five crates:
 
-- **lottiecode-lang** — DSL → AST → IR（lexer / parser / semantic）
-- **lottiecode-motion** — 命名 easing → cubic Bezier 表
-- **lottiecode-codegen** — IR → Lottie JSON（保持 AE 字段顺序）
-- **lottiecode-decompile** — Lottie JSON → DSL（含反 AE 模式检测）
-- **lottiecode-cli** — clap 子命令入口
+- **lottiecode-lang** — DSL → AST → IR (lexer / parser / semantic)
+- **lottiecode-motion** — named easings → cubic Bezier table
+- **lottiecode-codegen** — IR → Lottie JSON (preserves AE field order)
+- **lottiecode-decompile** — Lottie JSON → DSL (with non-AE-pattern detection)
+- **lottiecode-cli** — clap-based command entry point
 
-## 工程纪律
+## Engineering discipline
 
-- 单文件 ≤ 200 行
-- 中文注释
-- 字段顺序、enum 类型、AE 默认值省略策略均在 codegen 层契约化
-- 13 个 example 配 `expected.json` 作为回归基线
-- Round-trip 测试：JSON → DSL → JSON 结构等价比对
+- Single file ≤ 200 lines
+- Field order, enum types, and AE-default-omission strategy are contractualized in the codegen layer
+- 13 examples ship with `expected.json` as regression baselines
+- Round-trip tests: JSON → DSL → JSON structural equivalence
 
-## 安装预编译二进制
+## Pre-built binaries
 
-每天自动构建 nightly：
+Nightly builds run automatically:
 
 ```bash
 # Linux x86_64
@@ -73,7 +74,9 @@ curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lotti
 curl -L https://github.com/AgentsMesh/LottieCode/releases/download/nightly/lottiecode-macos-x86_64.tar.gz | tar xz
 ```
 
-## 姐妹项目
+Tagged releases (`v*.*.*`) trigger a separate workflow that publishes a stable release with platform binaries and auto-generated release notes.
+
+## Sister projects
 
 - [VEAC](https://github.com/AgentsMesh/veac) — Video Editing as Code
 - [Pastel](https://github.com/AgentsMesh/pastel) — Design as Code
