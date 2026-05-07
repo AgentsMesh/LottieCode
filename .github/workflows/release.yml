@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x86_64
+          - os: macos-13
+            target: macos-x86_64
+          - os: macos-latest
+            target: macos-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mount Bazel cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/Library/Caches/bazel
+          key: bazel-release-${{ matrix.target }}-${{ hashFiles('MODULE.bazel', '**/BUILD.bazel') }}
+          restore-keys: |
+            bazel-release-${{ matrix.target }}-
+
+      - name: Install Bazelisk
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo curl -L -o /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64
+            sudo chmod +x /usr/local/bin/bazel
+          else
+            brew install bazelisk
+          fi
+
+      - name: bazel build cli (release)
+        run: bazel build -c opt //crates/lottiecode-cli:lottiecode-cli
+
+      - name: Package binary
+        run: |
+          mkdir -p dist
+          cp bazel-bin/crates/lottiecode-cli/lottiecode-cli dist/lc
+          chmod +x dist/lc
+          cd dist
+          tar czf lottiecode-${{ matrix.target }}.tar.gz lc
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lottiecode-${{ matrix.target }}
+          path: dist/lottiecode-${{ matrix.target }}.tar.gz
+          retention-days: 30
+
+  publish:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ -n "${{ github.event.inputs.tag }}" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          BUILD_INFO="commit: $(git rev-parse --short HEAD)
+          built: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          各平台二进制：
+          - linux-x86_64
+          - macos-x86_64 (Intel)
+          - macos-arm64 (Apple Silicon)"
+          gh release create "$TAG" dist/*.tar.gz \
+            --title "$TAG" \
+            --notes "$BUILD_INFO" \
+            --generate-notes

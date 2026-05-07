@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: build & test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mount Bazel cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/Library/Caches/bazel
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', '**/BUILD.bazel') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
+
+      - name: Install Bazelisk
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo curl -L -o /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64
+            sudo chmod +x /usr/local/bin/bazel
+          else
+            brew install bazelisk
+          fi
+
+      - name: bazel build //...
+        run: bazel build //...
+
+      - name: bazel test //...
+        run: bazel test //... --test_output=errors
+
+      - name: Verify gaming.json fixture round-trip
+        run: |
+          bazel run //crates/lottiecode-cli:lottiecode-cli -- \
+            build "$PWD/examples/14-gaming-restore/main.lc" -o /tmp/gaming.json
+          python3 -c "
+          import json
+          a = json.load(open('/tmp/gaming.json'))
+          b = json.load(open('examples/14-gaming-restore/expected.json'))
+          assert a['fr'] == b['fr'], f\"fr {a['fr']} != {b['fr']}\"
+          assert len(a['layers']) == len(b['layers'])
+          assert len(a['assets']) == len(b['assets'])
+          print('OK')
+          "

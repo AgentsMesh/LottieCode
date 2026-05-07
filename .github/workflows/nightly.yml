@@ -1,0 +1,112 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # 每天 17:00 UTC（北京时间次日 01:00），避开整点错峰。
+    - cron: '17 17 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x86_64
+            artifact: lc
+          - os: macos-13
+            target: macos-x86_64
+            artifact: lc
+          - os: macos-latest
+            target: macos-arm64
+            artifact: lc
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mount Bazel cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/Library/Caches/bazel
+          key: bazel-nightly-${{ matrix.target }}-${{ hashFiles('MODULE.bazel', '**/BUILD.bazel') }}
+          restore-keys: |
+            bazel-nightly-${{ matrix.target }}-
+
+      - name: Install Bazelisk
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo curl -L -o /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64
+            sudo chmod +x /usr/local/bin/bazel
+          else
+            brew install bazelisk
+          fi
+
+      - name: bazel build cli (release)
+        run: bazel build -c opt //crates/lottiecode-cli:lottiecode-cli
+
+      - name: Package binary
+        run: |
+          mkdir -p dist
+          cp bazel-bin/crates/lottiecode-cli/lottiecode-cli dist/${{ matrix.artifact }}
+          chmod +x dist/${{ matrix.artifact }}
+          cd dist
+          tar czf lottiecode-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lottiecode-${{ matrix.target }}
+          path: dist/lottiecode-${{ matrix.target }}.tar.gz
+          retention-days: 7
+
+  publish:
+    name: publish nightly release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Refresh nightly tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f nightly
+          git push -f origin nightly
+
+      - name: Publish nightly release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 删除旧 nightly release（如有），保持单一 nightly 入口
+          gh release delete nightly -y --cleanup-tag=false 2>/dev/null || true
+          BUILD_INFO="commit: $(git rev-parse --short HEAD)
+          built: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          自动构建产物，仅供测试使用，可能含未发布的不稳定特性。
+          各平台二进制：
+          - linux-x86_64
+          - macos-x86_64 (Intel)
+          - macos-arm64 (Apple Silicon)"
+          gh release create nightly dist/*.tar.gz \
+            --title "Nightly $(date -u +%Y-%m-%d)" \
+            --notes "$BUILD_INFO" \
+            --prerelease
