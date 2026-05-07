@@ -1,0 +1,35 @@
+// 渐变卡片心跳 —— 持续 scale pulse 循环（不是一次性入场）
+
+composition "gradient-card" {
+    width    = 400
+    height   = 200
+    fps      = 30
+    duration = 2s
+
+    shape card {
+        rect { size = [320, 160], position = [0, 0], radius = 16 }
+
+        fill = {
+            gradient = linear
+            start    = [-160, 0]
+            end      = [160, 0]
+            colors   = [#6366F1, #EC4899]
+        }
+
+        position = [200, 100]
+
+        // 持续呼吸：每秒一次脉动循环（loop 由 lottie-player 接管）
+        animate scale {
+            0s:    [100, 100, 100]
+            0.5s:  [108, 108, 100]  ease = ease-in-out
+            1s:    [100, 100, 100]  ease = ease-in-out
+            1.5s:  [108, 108, 100]  ease = ease-in-out
+            2s:    [100, 100, 100]  ease = ease-in-out
+        }
+        animate rotation {
+            0s:    -2
+            1s:    2  ease = ease-in-out
+            2s:    -2 ease = ease-in-out
+        }
+    }
+}

@@ -1,0 +1,21 @@
+// 文本横幅 —— 演示 Text Layer + Fonts + 渐显
+
+composition "banner" {
+    width    = 600
+    height   = 200
+    fps      = 30
+    duration = 2s
+
+    text "Hello, LottieCode!" {
+        font     = "Arial"
+        size     = 48
+        color    = #FFFFFF
+        align    = center
+        position = [300, 100]
+
+        animate opacity {
+            0s:    0
+            0.6s:  100  ease = ease-out
+        }
+    }
+}

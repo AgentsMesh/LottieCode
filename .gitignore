@@ -1,0 +1,11 @@
+# Bazel 输出
+bazel-*
+MODULE.bazel.lock
+
+# macOS
+.DS_Store
+
+# 编辑器
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,35 @@
+// 菱形遮罩持续旋转 + 矩形心跳 —— 揭示 + 呼吸联动
+
+composition "mask-reveal" {
+    width    = 400
+    height   = 400
+    fps      = 30
+    duration = 3s
+
+    shape masked-rect {
+        rect { size = [300, 300] }
+        fill = #6366F1
+        position = [200, 200]
+
+        mask {
+            mode = add
+            path = "M-110 0 L0 -110 L110 0 L0 110"
+            opacity = 100
+        }
+
+        // 持续呼吸：心跳节奏
+        animate scale {
+            0s:    [80, 80, 100]
+            0.6s:  [105, 105, 100]  ease = ease-out
+            1.2s:  [85, 85, 100]    ease = ease-in-out
+            1.8s:  [105, 105, 100]  ease = ease-out
+            2.4s:  [85, 85, 100]    ease = ease-in-out
+            3s:    [80, 80, 100]    ease = ease-in
+        }
+        // 持续旋转：贯穿整个 3 秒一圈
+        animate rotation {
+            0s:    0
+            3s:    360  ease = linear
+        }
+    }
+}

@@ -1,0 +1,34 @@
+composition "check" {
+    width    = 64
+    height   = 64
+    fps      = 60
+    duration = 1.5s
+}
+
+token color {
+    success = #1EBF75
+}
+
+shape check {
+    path     = "M9.25 -6 L-2.75 6 L-9.25 -0.5"
+    stroke   = { color = color.success, width = 3, cap = round, join = round }
+    position = [32, 32]
+    scale    = 33.333
+
+    animate trim-end {
+        0.733s: 100
+        1.5s:   0    ease = cubic(0.461, 0, 0.466, 1)
+    }
+}
+
+shape ring {
+    ellipse  { size = [53, 53] }
+    stroke   = { color = color.success, width = 3, cap = round }
+    position = [32, 32]
+    scale    = 33.333
+
+    animate trim {
+        0s:    { end = 0,   offset = -360 } ease = cubic(0.66, 0, 0.34, 1)
+        1.283s:{ end = 100, offset = 0 }
+    }
+}

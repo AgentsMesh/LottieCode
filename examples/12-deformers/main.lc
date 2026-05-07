@@ -1,0 +1,57 @@
+// 路径变形器三连 —— pucker / twist / zigzag 三种 modifier 的效果对比。
+//
+// 三个 polystar，每个加一种变形器，并 animate 变形参数让效果可见地循环。
+
+composition "deformers" {
+    width    = 600
+    height   = 200
+    fps      = 30
+    duration = 3s
+
+    // Pucker（凹陷/膨胀）：星形顶点向中心收缩
+    shape pucker {
+        polystar { points = 8, outer-radius = 40, inner-radius = 20, type = star }
+        fill     = #EF4444
+        position = [150, 100]
+
+        // pucker amount 在 -100..100 间循环
+        pucker = 0
+        animate scale {
+            0s:    [100, 100, 100]
+            1.5s:  [120, 120, 100]  ease = ease-in-out
+            3s:    [100, 100, 100]  ease = ease-in-out
+        }
+        animate rotation {
+            0s: 0
+            3s: 360  ease = linear
+        }
+    }
+
+    // Twist（扭曲）：路径绕中心旋转
+    shape twist {
+        polystar { points = 6, outer-radius = 40, inner-radius = 20, type = star }
+        fill     = #10B981
+        position = [300, 100]
+
+        twist = { angle = 30, center = [0, 0] }
+
+        animate rotation {
+            0s:  0
+            3s:  720  ease = linear
+        }
+    }
+
+    // Zigzag（锯齿化）：直边变成波浪
+    shape zigzag {
+        rect     { size = [80, 80] }
+        fill     = #F59E0B
+        position = [450, 100]
+
+        zigzag = { amplitude = 6, frequency = 8, type = corner }
+
+        animate rotation {
+            0s:  0
+            3s:  -360  ease = linear
+        }
+    }
+}

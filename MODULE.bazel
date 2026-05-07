@@ -1,0 +1,39 @@
+module(
+    name = "lottiecode",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "rules_rust", version = "0.70.0")
+
+# Rust 工具链
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(edition = "2021")
+use_repo(rust, "rust_toolchains")
+
+register_toolchains("@rust_toolchains//:all")
+
+# 第三方依赖（cargo-free，纯 Bazel 声明）
+crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+crate.spec(
+    package = "serde",
+    version = "1",
+    features = ["derive"],
+)
+crate.spec(
+    package = "serde_json",
+    version = "1",
+    features = ["preserve_order"],
+)
+crate.spec(
+    package = "clap",
+    version = "4",
+    features = ["derive"],
+)
+crate.spec(
+    package = "zip",
+    version = "0.6",
+)
+crate.from_specs()
+use_repo(crate, "crates")

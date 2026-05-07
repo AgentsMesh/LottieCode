@@ -1,0 +1,40 @@
+// 投影 + 高斯模糊效果 —— 演示 shadow + blur layer-level effects。
+//
+// 卡片自带阴影，背后另有大模糊光晕做氛围。这是 UI 设计常见组合。
+
+composition "shadow-blur" {
+    width    = 400
+    height   = 300
+    fps      = 30
+    duration = 3s
+
+    // 背景模糊光晕：紫色椭圆 + 大 blur，营造氛围
+    shape glow {
+        ellipse  { size = [220, 220] }
+        fill     = #A5B4FC
+        position = [200, 150]
+        blur     = 30
+
+        animate scale {
+            0s:    [80, 80, 100]
+            1.5s:  [110, 110, 100]  ease = ease-in-out
+            3s:    [80, 80, 100]    ease = ease-in-out
+        }
+    }
+
+    // 前景卡片：圆角矩形 + 投影
+    shape card {
+        rect { size = [220, 140], radius = 16 }
+        fill     = #FFFFFF
+        position = [200, 150]
+
+        // 阴影：偏移 (8, 8)，模糊半径 20，半透明黑
+        shadow = [8, 8, 20, #00000040]
+
+        animate position {
+            0s:    [200, 150, 0]
+            1.5s:  [200, 130, 0]  ease = ease-in-out
+            3s:    [200, 150, 0]  ease = ease-in-out
+        }
+    }
+}

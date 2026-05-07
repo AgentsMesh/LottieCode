@@ -1,0 +1,3 @@
+common --enable_bzlmod
+build --@rules_rust//rust/toolchain/channel=stable
+test --test_output=errors

@@ -1,0 +1,25 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_test")
+
+rust_binary(
+    name = "lottiecode-cli",
+    srcs = glob(["src/**/*.rs"]),
+    edition = "2021",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//crates/lottiecode-codegen:lottiecode-codegen",
+        "//crates/lottiecode-decompile:lottiecode-decompile",
+        "//crates/lottiecode-lang:lottiecode-lang",
+        "//crates/lottiecode-motion:lottiecode-motion",
+        "@crates//:clap",
+        "@crates//:serde_json",
+    ],
+)
+
+rust_test(
+    name = "cli_test",
+    crate = ":lottiecode-cli",
+    data = ["//examples:fixtures"],
+    rustc_env = {
+        "LC_FIXTURES_RUNFILES": "examples",
+    },
+)

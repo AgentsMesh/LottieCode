@@ -1,0 +1,29 @@
+// Path morph 路径变形 —— 演示 animate path 在两个 SVG 路径间补间。
+//
+// 三角形 → 矩形 → 三角形 循环。三个形状顶点数必须一致（这里都是 4 点闭合）
+// 才能让 Lottie 做 Bezier morph。
+
+composition "path-morph" {
+    width    = 200
+    height   = 200
+    fps      = 30
+    duration = 2s
+
+    shape morph {
+        // 初始 path（4 点）。下面 animate path 会在三种形状间循环。
+        path     = "M0 -50 L50 30 L0 30 L-50 30"
+        fill     = #6366F1
+        position = [100, 100]
+
+        animate path {
+            0s:    "M0 -50 L50 30 L0 30 L-50 30"      // 三角形
+            1s:    "M-50 -50 L50 -50 L50 50 L-50 50"  ease = ease-in-out  // 矩形
+            2s:    "M0 -50 L50 30 L0 30 L-50 30"      ease = ease-in-out  // 回到三角形
+        }
+
+        animate rotation {
+            0s: 0
+            2s: 360  ease = ease-in-out
+        }
+    }
+}

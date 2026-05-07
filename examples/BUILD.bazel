@@ -1,0 +1,8 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+# 测试 fixture：所有 example 的 main.lc + expected.json
+filegroup(
+    name = "fixtures",
+    srcs = glob(["**/main.lc", "**/expected.json"]),
+    visibility = ["//visibility:public"],
+)

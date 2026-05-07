@@ -1,0 +1,16 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+rust_library(
+    name = "lottiecode-decompile",
+    srcs = glob(["src/**/*.rs"]),
+    edition = "2021",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@crates//:serde_json",
+    ],
+)
+
+rust_test(
+    name = "decompile_test",
+    crate = ":lottiecode-decompile",
+)

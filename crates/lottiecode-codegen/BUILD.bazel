@@ -1,0 +1,20 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+rust_library(
+    name = "lottiecode-codegen",
+    srcs = glob(["src/**/*.rs"]),
+    edition = "2021",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//crates/lottiecode-lang:lottiecode-lang",
+        "//crates/lottiecode-motion:lottiecode-motion",
+        "@crates//:serde",
+        "@crates//:serde_json",
+        "@crates//:zip",
+    ],
+)
+
+rust_test(
+    name = "codegen_test",
+    crate = ":lottiecode-codegen",
+)

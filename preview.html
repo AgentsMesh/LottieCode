@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>LottieCode Demos</title>
+<script src="https://cdn.jsdelivr.net/npm/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+<style>
+  body {
+    margin: 0;
+    padding: 32px;
+    background: #0F172A;
+    color: #E2E8F0;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  .sub { color: #94A3B8; margin-bottom: 32px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .card {
+    background: #1E293B;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .card h3 { margin: 0 0 4px; font-size: 14px; }
+  .card .meta { color: #64748B; font-size: 11px; margin-bottom: 12px; }
+  .stage {
+    background: #0F172A;
+    border-radius: 8px;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  lottie-player { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<h1>LottieCode Demos</h1>
+<div class="sub">8 个由 LottieCode DSL 编译生成的 Lottie 动画。点击播放器循环播放。</div>
+<div class="grid" id="grid"></div>
+
+<script>
+const demos = [
+  { name: "01-check", title: "勾选成功", desc: "Trim Path + cubic ease（圆 → 勾依次画出）" },
+  { name: "02-loader", title: "旋转 loader", desc: "trim 显示 + 360° 持续旋转" },
+  { name: "03-component-pulse", title: "Loading Dots stagger", desc: "3 点接力跳动（0.2s 错位）" },
+  { name: "04-text-banner", title: "文字渐显", desc: "Text Layer 0→100 opacity ease-out" },
+  { name: "05-gradient-card", title: "渐变卡片心跳", desc: "scale + rotation 持续呼吸 1Hz" },
+  { name: "06-stars", title: "5 星 stagger 入场", desc: "5 个独立 shape 依次出现/退出循环" },
+  { name: "07-mask-reveal", title: "菱形遮罩呼吸 + 旋转", desc: "mask + scale + 360° 旋转联动" },
+  { name: "08-precomp-card", title: "卡片错位入场", desc: "4 张 precomp 实例 stagger + 内 badge 弹跳" },
+];
+
+const grid = document.getElementById('grid');
+demos.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  // 加 timestamp 避免浏览器缓存旧 JSON
+  const src = `fixtures/${d.name}.expected.json?t=${Date.now()}`;
+  card.innerHTML = `
+    <h3>${d.title}</h3>
+    <div class="meta">${d.name} · ${d.desc}</div>
+    <div class="stage">
+      <lottie-player
+        src="${src}"
+        background="transparent"
+        speed="1"
+        loop autoplay
+      ></lottie-player>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

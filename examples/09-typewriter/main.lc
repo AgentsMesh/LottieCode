@@ -1,0 +1,31 @@
+// Typewriter 打字机效果 —— 演示 typewriter block + char-opacity 字符级动画。
+//
+// 字符按时间逐字出现：通过 typewriter 0→100 控制可见字符数，
+// char-opacity 让未到达的字符显示为半透明（典型设计师做法）。
+
+composition "typewriter" {
+    width    = 600
+    height   = 100
+    fps      = 30
+    duration = 2.5s
+
+    text "Designed in Code." {
+        font     = "Arial"
+        weight   = Bold
+        size     = 40
+        color    = #1F2937
+        align    = center
+        position = [300, 60]
+
+        // typewriter 0→100：控制百分之多少的字符可见
+        typewriter {
+            0s:    0
+            0.3s:  0     hold
+            2s:    100   ease = linear
+            2.5s:  100
+        }
+
+        // 字符未到达时半透明（DSL 内部仅静态值；动态由 typewriter 接管）
+        char-opacity = 100
+    }
+}

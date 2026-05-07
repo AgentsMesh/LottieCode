@@ -1,0 +1,19 @@
+// 共享 token 与 component（被 main.lc include）
+
+token brand {
+    primary = #6366F1
+}
+
+component pulse-dot(color, cx) {
+    shape dot {
+        ellipse  { size = [20, 20] }
+        fill     = color
+        position = [cx, 30]
+
+        animate scale {
+            0s:    [60, 60]
+            0.5s:  [120, 120] ease = ease-out
+            1s:    [60, 60]
+        } loop
+    }
+}

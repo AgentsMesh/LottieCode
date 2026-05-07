@@ -1,0 +1,37 @@
+// Repeater 扇形旋转 —— 演示 repeater 修饰器把单个 dot 复制成旋转扇形。
+//
+// 12 个圆点等角分布在圆周上，整体旋转。常用于 spinner / 加载动画。
+
+composition "repeater-fan" {
+    width    = 200
+    height   = 200
+    fps      = 30
+    duration = 2s
+
+    shape spinner {
+        // 单个 dot：偏离中心放置，repeater 沿圆周复制 12 份
+        ellipse  { size = [12, 12] }
+        fill     = #6366F1
+        position = [100, 100]
+
+        // 12 copies × 30° 间隔 = 360°，每个 copy 自身 scale 渐变形成"光带"效果
+        repeater = {
+            copies   = 12
+            offset   = 0
+            position = [0, 0]
+            rotation = 30
+            scale    = 100
+        }
+
+        // 整体旋转 + 呼吸
+        animate rotation {
+            0s: 0
+            2s: 360  ease = linear
+        }
+        animate scale {
+            0s:   [70, 70, 100]
+            1s:   [100, 100, 100]  ease = ease-in-out
+            2s:   [70, 70, 100]    ease = ease-in-out
+        }
+    }
+}
