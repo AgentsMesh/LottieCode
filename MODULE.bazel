@@ -35,5 +35,22 @@ crate.spec(
     package = "zip",
     version = "0.6",
 )
+# 位图矢量化：vtracer 把 PNG/JPG → SVG，image 用来把字节解码为 RGBA 喂给 vtracer。
+# image 版本与 vtracer 0.6.5 内部使用的保持一致（0.23），避免链路里出现两份。
+# visioncortex 是 vtracer 的算法底座；trace 直接引用它的 PathSimplifyMode 枚举。
+crate.spec(
+    package = "vtracer",
+    version = "0.6.5",
+)
+crate.spec(
+    package = "visioncortex",
+    version = "0.8",
+)
+crate.spec(
+    package = "image",
+    version = "0.23",
+    default_features = False,
+    features = ["png", "jpeg", "bmp", "gif"],
+)
 crate.from_specs()
 use_repo(crate, "crates")

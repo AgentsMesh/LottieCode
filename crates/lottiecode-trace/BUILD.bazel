@@ -1,0 +1,18 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+rust_library(
+    name = "lottiecode-trace",
+    srcs = glob(["src/**/*.rs"]),
+    edition = "2021",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@crates//:image",
+        "@crates//:visioncortex",
+        "@crates//:vtracer",
+    ],
+)
+
+rust_test(
+    name = "trace_test",
+    crate = ":lottiecode-trace",
+)

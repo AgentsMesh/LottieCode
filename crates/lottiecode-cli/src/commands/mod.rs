@@ -7,3 +7,4 @@ pub mod fmt;
 pub mod inspect;
 pub mod plan;
 pub mod syntax;
+pub mod trace;

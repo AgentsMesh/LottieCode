@@ -10,6 +10,7 @@ rust_binary(
         "//crates/lottiecode-decompile:lottiecode-decompile",
         "//crates/lottiecode-lang:lottiecode-lang",
         "//crates/lottiecode-motion:lottiecode-motion",
+        "//crates/lottiecode-trace:lottiecode-trace",
         "@crates//:clap",
         "@crates//:serde_json",
     ],

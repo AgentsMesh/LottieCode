@@ -61,6 +61,32 @@ enum Command {
         #[arg(short, long)]
         output: Option<PathBuf>,
     },
+    /// 位图矢量化为 SVG / lc DSL（基于 vtracer）。
+    Trace {
+        /// 输入位图（PNG / JPG / BMP / GIF）。
+        file: PathBuf,
+        /// 输出路径；后缀决定格式（.svg | .lc）。与 --stdout 互斥。
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        /// 输出到 stdout（必须同时指定 --as）。
+        #[arg(long)]
+        stdout: bool,
+        /// 与 --stdout 配对：svg | lc。
+        #[arg(long = "as", value_parser = ["svg", "lc"])]
+        as_format: Option<String>,
+        /// 路径简化模式：spline | polygon | none。
+        #[arg(long, default_value = "spline")]
+        mode: String,
+        /// 颜色模式：color | binary。
+        #[arg(long = "color-mode", default_value = "color")]
+        color_mode: String,
+        /// 过滤小于该面积平方根的杂点。
+        #[arg(long = "filter-speckle", default_value_t = 4)]
+        filter_speckle: usize,
+        /// 颜色聚类精度（位深，1-8）。
+        #[arg(long = "color-precision", default_value_t = 6)]
+        color_precision: i32,
+    },
 }
 
 fn main() -> ExitCode {
@@ -77,6 +103,25 @@ fn main() -> ExitCode {
         Command::Fmt { file, write } => commands::fmt::run(&file, write),
         Command::Inspect { file, json } => commands::inspect::run(&file, json),
         Command::Decompile { file, output } => commands::decompile::run(&file, output.as_deref()),
+        Command::Trace {
+            file,
+            output,
+            stdout,
+            as_format,
+            mode,
+            color_mode,
+            filter_speckle,
+            color_precision,
+        } => commands::trace::run(
+            &file,
+            output.as_deref(),
+            stdout,
+            as_format.as_deref(),
+            &mode,
+            &color_mode,
+            filter_speckle,
+            color_precision,
+        ),
     };
 
     match result {
